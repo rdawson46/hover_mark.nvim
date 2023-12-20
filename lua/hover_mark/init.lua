@@ -1,4 +1,4 @@
-local mark = require("hover_mark.utils")
+local mark = require("hover_mark.marks")
 local bookmark = require("hover_mark.bookmark")
 local utils = require("hover_mark.utils")
 local M = {}
@@ -196,12 +196,14 @@ function M.setup(config)
     for i=0,9 do
         bookmark_config = config["bookmark_"..i]
         if bookmark_config then
-            M.bookmark_state.signs[i] = nil
-        else
-            M.bookmark_state.signs[i] = bookmark_config.sign or M.bookmark_state.signs[i]
+            if bookmark_config.sign == false then
+                M.bookmark_state.signs[i] = nil
+            else
+                M.bookmark_state.signs[i] = bookmark_config.sign or M.bookmark_state.signs[i]
+            end
+            M.bookmark_state.virt_text[i] = bookmark_config.virt_text or M.bookmark_config.virt_text[i]
+            M.bookmark_state.prompt_annotate[i] = bookmark_config.annotate
         end
-        M.bookmark_state.virt_text[i] = bookmark_config.virt_text or M.bookmark_config.virt_text[i]
-        M.bookmark_state.prompt_annotate[i] = bookmark_config.annotate
     end
 
     local excluded_fts = {}
@@ -229,7 +231,7 @@ function M.setup(config)
         mark_priority[1] = config.sign_priority.lower or mark_priority[1]
         mark_priority[2] = config.sign_priority.lower or mark_priority[2]
         mark_priority[3] = config.sign_priority.lower or mark_priority[3]
-        M.bookmark_state.priority = config.sign.priority.bookmark or 10
+        M.bookmark_state.priority = config.sign_priority.bookmark or 10
     elseif type(config.sign_priority) == "number" then
         mark_priority[1] = config.sign_priority
         mark_priority[2] = config.sign_priority

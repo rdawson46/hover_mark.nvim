@@ -332,7 +332,7 @@ function Bookmarks:add_sign(bufnr, text, line, id)
 end
 
 function Bookmarks.new()
-    return setmetatable({signs={"!", "@", "#", "$", "%", "^", "&", "*", "(", [0]="}"}, virt_text = {}, groups = {}, prompt_annotate={}, opt={}, {__index = Bookmarks}})
+    return setmetatable({signs={"!", "@", "#", "$", "%", "^", "&", "*", "(", [0]="}"}, virt_text = {}, groups = {}, prompt_annotate={}, opt={}}, {__index = Bookmarks})
 end
 
 return Bookmarks
