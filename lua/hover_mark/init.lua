@@ -62,7 +62,7 @@ function M.prev()
 end
 
 function M.annotate()
-    M.mark_state:annotate()
+    M.bookmark_state:annotate()
 end
 
 function M.refresh(force_reregister)
@@ -119,7 +119,7 @@ for i=0,9 do
 end
 
 function M.delete_bookmark()
-    M.bookmark_state:delete_mark_cursro()
+    M.bookmark_state:delete_mark_cursor()
 end
 
 function M.next_bookmark()

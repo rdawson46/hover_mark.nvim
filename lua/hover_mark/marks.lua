@@ -130,7 +130,7 @@ function Mark:delete_line_marks()
 end
 
 function Mark:toggle_mark_cursor()
-    local bufnr = a.nvim_get_current_buf
+    local bufnr = a.nvim_get_current_buf()
     local pos = a.nvim_win_get_cursor(0)
 
     if self.buffers[bufnr].marks_by_line[pos[1]] then
@@ -232,7 +232,7 @@ function Mark:preview_mark()
         return
     end
 
-    local pos = vim.dn.getpos("'" .. mark)
+    local pos = vim.fn.getpos("'" .. mark)
     if pos[2] == 0 then
         return
     end
@@ -360,6 +360,7 @@ function Mark:add_sign(bufnr, text, line, id)
     else
         priority = self.opt.priority[3]
     end
+    -- TODO: replace this call
     utils.add_sign(bufnr, text, line, id, "MarkSigns", priority)
 end
 

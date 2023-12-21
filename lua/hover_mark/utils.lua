@@ -15,6 +15,7 @@ for i = 0, 9 do
     builtin_marks[tostring(i)] = true
 end
 
+-- TODO: fix this function
 function M.add_sign(bufnr, text, line, id, group, priority)
     priority = priority or 10
     local sign_name = "Marks_" .. text
@@ -23,11 +24,23 @@ function M.add_sign(bufnr, text, line, id, group, priority)
         vim.fn.sign_define(sign_name, {text = text, texthl = "MarkSignHL", numhl = "MarkSignNumHL"})
     end
 
+    local opts = {
+        id = id,
+        virt_text = { text=text },
+        virt_text_pos = 'right-align',
+        priority = priority,
+    }
+    -- FIX:
+    -- need ns_id, if id is not already there
+    -- firgure out where id and group are comming from
     vim.fn.sign_place(id, group, sign_name, bufnr, { lnum = line, priority = priority })
+    --vim.buf_set_extmark(buffer, ns_id, line, col, *opts)
 end
 
 function M.remove_sign(bufnr, id, group)
     group = group or "MarkSigns"
+    -- FIX: 
+    -- find way to remove
     vim.fn.sign_unplace(group, { bufnr = bufnr, id = id })
 end
 
