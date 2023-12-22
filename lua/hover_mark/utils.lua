@@ -1,4 +1,4 @@
-local M = { sign_cache = {} }
+local M = { hover_cache = {}, sign_cache = {} }
 local builtin_marks = {
     ['.'] = true,
     ['^'] = true,
@@ -16,34 +16,59 @@ for i = 0, 9 do
 end
 
 -- TODO: fix this function
+-- might chage from extmark to a diagnostic hint 
 function M.add_sign(bufnr, text, line, id, group, priority)
+    -- FIX: fix for bookmarks group
     priority = priority or 10
+
+    if group == 'BookmarkSigns' then
+        local sign_name = "Marks_" ..text
+        if not M.sign_cache[id] then
+            M.sign_cache[id] = true
+            vim.fn.sign_define(sign_name, {text = text, texthl = "MarkSignHL", numhl = "MarkSignNumHL"})
+        end
+
+        vim.fn.sign_place(id, group, sign_name, bufnr, { lnum = line, priority = priority })
+        return
+    end
+
+    -- mark condition
     local sign_name = "Marks_" .. text
-    if not M.sign_cache[sign_name] then
-        M.sign_cache[sign_name] = true
-        vim.fn.sign_define(sign_name, {text = text, texthl = "MarkSignHL", numhl = "MarkSignNumHL"})
+    local ns = vim.api.nvim_create_namespace(sign_name)
+    if not M.hover_cache[id] then
+        M.hover_cache[id] = { ns = ns, ext_id = "" }
     end
 
     local opts = {
-        id = id,
-        virt_text = { text=text },
-        virt_text_pos = 'right-align',
+        virt_text = { {' ' .. text .. ' ', 'incsearch'} },
+        virt_text_pos = 'eol',
         priority = priority,
     }
-    -- FIX:
-    -- need ns_id, if id is not already there
-    -- firgure out where id and group are comming from
-    vim.fn.sign_place(id, group, sign_name, bufnr, { lnum = line, priority = priority })
-    --vim.buf_set_extmark(buffer, ns_id, line, col, *opts)
+    -- vim.api.nvim_buf_set_extmark(bufnr, ns, line, col, opts)
+    local ext_id = vim.api.nvim_buf_set_extmark(bufnr, ns, line-1, 0, opts)
+    M.hover_cache[id].ext_id = ext_id
 end
 
 function M.remove_sign(bufnr, id, group)
+    -- FIX: fix for bookmarks group
     group = group or "MarkSigns"
-    -- FIX: 
-    -- find way to remove
-    vim.fn.sign_unplace(group, { bufnr = bufnr, id = id })
+
+    if group == 'BookmarkSigns' then
+        vim.fn.sign_unplace(group, { bufnr = bufnr, id = id })
+        return
+    end
+    if not M.hover_cache[id] then
+        return
+    end
+
+    local signs = M.hover_cache[id]
+
+    --a.nvim_buf_del_extmark(bufnr, ns, id)
+    vim.api.nvim_buf_del_extmark(bufnr, signs.ns, signs.ext_id)
+    M.hover_cache[id] = nil
 end
 
+-- FIX: function will need readjusted
 function M.remove_buf_sign(bufnr, group)
     group = group or "MarkSigns"
     vim.fn.sign_unplace(group, { bufnr = bufnr })

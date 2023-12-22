@@ -3,6 +3,8 @@ local utils = require('hover_mark.utils')
 
 local Mark = {}
 
+-- FIX: causes error somewhere
+    -- NOTE: might be cause in callee, but on buffer load, marks aren't placed
 function Mark:register_mark(mark, line, col, bufnr)
     col = col or 1
     bufnr = bufnr or a.nvim_get_current_buf()
@@ -140,7 +142,8 @@ function Mark:toggle_mark_cursor()
     end
 end
 
-function Mark:delete_bur_marks(clear)
+-- FIX: does not remove marks from UI when used
+function Mark:delete_buf_marks(clear)
     clear = utils.option_nil(clear, true)
     local bufnr = a.nvim_get_current_buf()
     self.buffers[bufnr] = {
@@ -334,12 +337,17 @@ function Mark:refresh(bufnr, force)
         pos = data.pos
         cached_mark = self.buffers[bufnr].placed_marks[mark]
 
+        --[[
         if utils.is_upper(mark) and pos[1] == bufnr and (force or not cached_mark or pos[2] ~= cached_mark.line) then
             self:register_mark(mark, pos[2], pos[3], bufnr)
         end
+        ]]--
+        if (utils.is_upper(mark) or utils.is_lower(mark)) and pos[1] == bufnr and (force or not cached_mark or pos[2] ~= cached_mark.line) then
+            self:register_mark(mark, pos[2], pos[3], bufnr)
+        end
     end
-
     -- lowercase
+    --[[
     for _, data in ipairs(vim.fn.getmarklist()) do
         mark = data.mark:sub(2,3)
         pos = data.pos
@@ -349,6 +357,7 @@ function Mark:refresh(bufnr, force)
             self:register_mark(mark, pos[2], pos[3], bufnr)
         end
     end
+    ]]--
 end
 
 function Mark:add_sign(bufnr, text, line, id)
@@ -360,7 +369,6 @@ function Mark:add_sign(bufnr, text, line, id)
     else
         priority = self.opt.priority[3]
     end
-    -- TODO: replace this call
     utils.add_sign(bufnr, text, line, id, "MarkSigns", priority)
 end
 

@@ -59,7 +59,6 @@ function Bookmarks:place_mark(group_nr, bufnr)
     local display_signs = utils.option_nil(self.opt.buf_signs[bufnr], self.opt.signs)
     if display_signs and group.sign then
         local id = group.sign:byte() * 100 + pos[1]
-        -- TODO: fix this call
         self:add_sign(bufnr, group.sign, pos[1], id)
         data.sign_id = id
     end
@@ -249,7 +248,6 @@ function Bookmarks:annotate(group_nr)
     local text = vim.fn.input("annotation: ")
 
     if text ~= "" then
-        print(text)
         a.nvim_buf_set_extmark(bufnr, self.groups[group_nr].ns, bookmark.line-1, bookmark.col, {
             id = bookmark.extmark_id, virt_text = {{text, "incsearch"}},
             virt_text_pos = 'right_align',
@@ -330,13 +328,12 @@ function Bookmarks:all_to_list(list_type)
     list_fn(items, "r")
 end
 
--- TODO: fix this function
 function Bookmarks:add_sign(bufnr, text, line, id)
     utils.add_sign(bufnr, text, line, id, "BookmarkSigns", self.priority)
 end
 
 function Bookmarks.new()
-    return setmetatable({signs={"!", "@", "#", "$", "%", "^", "&", "*", "(", [0]=")"}, virt_text = {}, groups = {}, prompt_annotate={}, opt={}}, {__index = Bookmarks})
+    return setmetatable({signs={"!", "@", "#", "$", "%", "^", "&", "*", "(", [0]="!"}, virt_text = {}, groups = {}, prompt_annotate={}, opt={}}, {__index = Bookmarks})
 end
 
 return Bookmarks
